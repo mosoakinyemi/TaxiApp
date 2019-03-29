@@ -4,9 +4,9 @@ import { createMaterialTopTabNavigator, createAppContainer,createStackNavigator 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Header from './Header.js';
 import GLOBALS from './Globals'
-import {HistoryScreen} from './History/HistoryScreen'
-import {ActiveScreen} from './History/ActiveScreen'
-import {HistoryDetail} from './History/HistoryDetail.js'
+import HistoryScreen from './History/HistoryScreen'
+import ActiveScreen from './History/ActiveScreen'
+import HistoryModal from './History/HistoryModal.js'
 import {Trial} from './Trial.js'
 
 
@@ -69,7 +69,7 @@ const TabNav = createMaterialTopTabNavigator({
     color:'black',
   },
   style: {
-    backgroundColor: '#d2d2d2',
+    backgroundColor: '#ffffff',
   },
   tabBarSelectedItemStyle: {
             backgroundColor:GLOBALS.COLORS.YELLOW,
@@ -82,7 +82,6 @@ const HistoryStack = createAppContainer(TabNav);
 const HistoryRoot =  createStackNavigator({
  HistoryHome:{screen:HistoryHome,navigationOptions: { header: null }},
   TabNav:{screen:TabNav},
- HistoryDetail:{screen:HistoryDetail},
   HistoryScreen:{screen:HistoryScreen},
  });
 

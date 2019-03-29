@@ -5,37 +5,40 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import GLOBALS from './Globals'
 import { connect } from 'react-redux';
-import Geocoder from 'react-native-geocoder';
-
 
   var wS = Dimensions.get('window');
   var dh = wS.height;
   var dw = wS.width;
 
 class Search extends Component {
+
     setPickupLocation(details){
-          console.log(details.geometry);
-          const location= details.formatted_address;
+          console.log(details);
+          const placeName= details.name;
+          const placeLocation= details.formatted_address;
           const coordinates= details.geometry.location;
           const lat = coordinates.lat;
           const lng = coordinates.lng;
 
           this.props.dispatch({type:'SET_PICKUP_LATITUDE', lat})
           this.props.dispatch({type:'SET_PICKUP_LONGITUDE', lng})
-          this.props.dispatch({ type: 'SET_PICKUP_LOCATION', location });
+          this.props.dispatch({ type: 'SET_PICKUP_LOCATION_NAME', placeName});
+          this.props.dispatch({ type: 'SET_PICKUP_LOCATION_PLACE', placeLocation});
           this.props.navigation.navigate('BookingHome')
     }
 
   setDestinationLocation(details){
-    console.log(details.geometry);
-    const location= details.formatted_address;
+    console.log(details);
+    const placeName= details.name;
+    const placeLocation= details.formatted_address;
     const coordinates= details.geometry.location;
     const lat = coordinates.lat;
     const lng = coordinates.lng;
 
     this.props.dispatch({type:'SET_DESTINATION_LATITUDE', lat})
     this.props.dispatch({type:'SET_DESTINATION_LONGITUDE', lng})
-    this.props.dispatch({ type: 'SET_DESTINATION_LOCATION', location });
+    this.props.dispatch({ type: 'SET_DESTINATION_LOCATION_NAME', placeName});
+    this.props.dispatch({ type: 'SET_DESTINATION_LOCATION_PLACE', placeLocation });
     this.props.navigation.navigate('BookingHome')
   }
   render() {

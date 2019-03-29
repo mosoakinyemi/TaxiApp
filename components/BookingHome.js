@@ -18,8 +18,10 @@ import MapViewDirections from 'react-native-maps-directions';
 
   class TopBox extends Component {
    render() {
-      var loc = this.props.loc;
-      var dest= this.props.dest;
+      var locName = this.props.locName;
+      var locPlace = this.props.locPlace;
+      var destName= this.props.destName;
+      var destPlace= this.props.destPlace;
      return (
        <View style={styles.topBoxes}>
              <TouchableOpacity
@@ -30,7 +32,7 @@ import MapViewDirections from 'react-native-maps-directions';
                  </View>
                     <View>
                       <Text>Select your Location:</Text>
-                      <Text	style={styles.locationTxt}>{loc}</Text>
+                      <Text	style={styles.locationTxt}>{locName}, {locPlace}</Text>
                     </View>
              </TouchableOpacity>
              <View style={{width:'100%',height: 1, backgroundColor: '#ddd'}} />
@@ -42,7 +44,7 @@ import MapViewDirections from 'react-native-maps-directions';
                  </View>
                     <View>
                       <Text>Select your Destination: </Text>
-                      <Text	style={styles.locationTxt}>{dest}</Text>
+                      <Text	style={styles.locationTxt}>{destName}, {destPlace}</Text>
                     </View>
              </TouchableOpacity>
        </View>
@@ -89,6 +91,8 @@ import MapViewDirections from 'react-native-maps-directions';
        header: null,
        };
 	 state = {
+     distance:null,
+     duration:null,
 			 isModalVisible: false,
        selectedOptionID:'',
        selectedPrice:'$6.75',
@@ -150,11 +154,29 @@ import MapViewDirections from 'react-native-maps-directions';
            destinationLatitude,
            destinationLongitude }= this.props;
 
+       var origins = ['4.573133,8.4877771'];
+       var destinations = ['4.575833,8.4871771']
+
     console.log(pickupLatitude);
     return (
        <View style={styles.container}>
-        <Header title="TRANSPORT" rightIcon="crosshairs-gps" navigation={this.props.navigation}
-        desc="You clicked your location" />
+            <View style={styles.appBar}>
+              <View>
+                  <TouchableOpacity onPress={()=>this.props.navigation.openDrawer()}>
+                    <Icon name="menu" size={25} style= {styles.drawrIcon} />
+                  </TouchableOpacity>
+              </View>
+
+              <View style={styles.headerText}>
+                <Text style={styles.centerTxt}>Book a Ride</Text>
+               </View>
+
+                 <TouchableOpacity
+                 onPress={()=>ToastAndroid.show("You clicked your location", ToastAndroid.SHORT)}
+                 >
+                    <Icon name="crosshairs-gps" size={25} style= {styles.drawrIcon} />
+                 </TouchableOpacity>
+           </View>
         <View style={styles.body}>
                 <MapView style={styles.map}
                 loadingEnabled = {true}
@@ -187,37 +209,66 @@ import MapViewDirections from 'react-native-maps-directions';
 
                     <MapViewDirections
                       origin={{latitude:pickupLatitude, longitude:pickupLongitude}}
+                      onError={(errorMessage) => {
+                              ToastAndroid.show('An error occurred, Please try again', ToastAndroid.SHORT)
+                            }}
                       destination={{latitude:destinationLatitude, longitude:destinationLongitude}}
                       apikey={GLOBALS.DIRECTIONSKEY}
                       strokeWidth={5}
                       strokeColor="black"
+                      onReady={result => {
+                          var distance = result.distance;
+                          var duration = result.duration;
+                          this.props.dispatch({ type: 'SELECT_TRAVEL_DISTANCE', distance});
+                          this.props.dispatch({ type: 'SELECT_TRAVEL_DURATION', duration});
+                          this.setState({distance:distance})
+                          this.setState({duration:duration})
+                           console.log(`Distance: ${result.distance} km`)
+                           console.log(`Duration: ${result.duration} min.`)
+                      }}
                     />
                </MapView>
 
                <TopBox navigation={this.props.navigation}
-                loc={this.props.pickupLocation}
-                dest={this.props.destinationLocation} />
+                locName={this.props.pickupLocationName}
+                locPlace={this.props.pickupLocationPlace}
+                destName={this.props.destinationLocationName}
+                destPlace={this.props.destinationLocationPlace}/>
 
 							<View style={styles.bottomStack}>
-									<TouchableOpacity style={styles.FirstRow}
-                  activeOpacity={0.5}
-                  onPress={this._toggleModal}>
-                        <Image source={this.state.selectedImage} style={styles.thumb}/>
-                        <View style={styles.textRows}>
-                            <View style={styles.TR1}>
-                                <Text style={{fontWeight: 'bold',color: 'black'}} >{this.state.selectedClass}</Text>
-                                <View style={{flexDirection:'row',justifyContent: 'center'}}>
-                                    <Icon name="account" size={17} style={{marginHorizontal: 5 }} />
-                                    <Text>{this.state.selectedPeople}</Text>
+                    <View style={{flexDirection:'row', backgroundColor: 'white', justifyContent:'space-between' }}>
+                      <TouchableOpacity style={styles.FirstRow}
+                      activeOpacity={0.5}
+                      onPress={this._toggleModal}>
+                            <Image source={this.state.selectedImage} style={styles.thumb}/>
+                            <View style={styles.textRows}>
+                                <View style={styles.TR1}>
+                                    <Text style={{fontWeight: 'bold',color: 'black'}} >{this.state.selectedClass}</Text>
+                                    <View style={{flexDirection:'row',justifyContent: 'center'}}>
+                                        <Icon name="account" size={17} style={{marginHorizontal: 5 }} />
+                                        <Text>{this.state.selectedPeople}</Text>
+                                    </View>
+                                </View>
+                                <View style={styles.TR2}>
+                                  <Text style={{fontWeight: 'bold',color:'rgb(67, 177, 35)'}}>{this.state.selectedPrice}</Text>
+                                  <Text style={{fontWeight: 'bold',color: 'black'}}>{this.state.selectedTime}</Text>
                                 </View>
                             </View>
-                            <View style={styles.TR2}>
-                              <Text style={{fontWeight: 'bold',color:'rgb(67, 177, 35)'}}>{this.state.selectedPrice}</Text>
-                              <Text style={{fontWeight: 'bold',color: 'black'}}>{this.state.selectedTime}</Text>
-                            </View>
-                        </View>
-									</TouchableOpacity>
+                      </TouchableOpacity>
 
+                      <View style={{marginRight: 20}}>
+                          <Text style={[styles.tripTxt,{color:'rgb(19, 107, 11)',fontWeight: 'bold',fontSize: 17}]}
+                            >Price: {'\u20A6'} {(this.props.travelDistance*100).toFixed(0)} </Text>
+                          <View style={{flexDirection: 'row'}}>
+                            <Text style={{fontSize: 15,fontWeight: '400'}}>Distance: </Text>
+                            <Text style={styles.tripTxt}>{this.props.travelDistance.toFixed(2)} km</Text>
+                          </View>
+                          <View style={{flexDirection: 'row'}}>
+                            <Text style={{fontSize: 15,fontWeight: '400'}}>Duration: </Text>
+                            <Text style={styles.tripTxt}>{(this.props.travelDuration).toFixed(2)} mins</Text>
+                          </View>
+                      </View>
+                    </View>
                     <MiddleRow   navigation={this.props.navigation}
                       selected={this.props.selectedPaymentMethod}
                      />
@@ -227,76 +278,75 @@ import MapViewDirections from 'react-native-maps-directions';
                    activeOpacity={0.6}>
 											<Text style={{fontSize: 22,color: 'black',fontWeight: 'bold'}}>REQUEST A RIDE</Text>
 									</TouchableOpacity>
-
-                  <Modal
-                    style={styles.modalWrapper}
-                    animationOut="fadeOut"
-                    animationOutTiming ={400}
-                    animationIn="fadeIn"
-                    animationInTiming={400}
-                    onBackdropPress={() => this.setState({ isModalVisible: false })}
-                    isVisible={this.state.isModalVisible}>
-                      <View style={styles.modalBody}>
-                        <TouchableOpacity style={styles.MR}
-                          activeOpacity={0.5}
-                          onPress={this._selectEconomy}>
-                                <Image source={require('../assets/bluecar.png')} style={styles.thumb}/>
-                                  <View style={styles.MTR}>
-                                        <View style={styles.TR1}>
-                                          <Text style={{fontWeight: 'bold',color: 'black'}}>Economy</Text>
-                                          <View style={{flexDirection:'row',justifyContent: 'center'}}>
-                                              <Icon name="account" size={17} style={{marginHorizontal: 5 }} />
-                                              <Text>1-4 Max</Text>
-                                          </View>
-                                        </View>
-                                        <View style={styles.TR2}>
-                                          <Text style={{ fontWeight: 'bold',color:'rgb(67, 177, 35)'}}>$6.75</Text>
-                                            <Text style={{fontWeight: 'bold',color: 'black'}}>12 min</Text>
-                                        </View>
-                                  </View>
-                          </TouchableOpacity>
-
-                          <TouchableOpacity style={styles.MR}
-                            activeOpacity={0.5}
-                            onPress={this._selectLarge}>
-                                  <Image source={require('../assets/truck.png')} style={styles.thumb}/>
-                                    <View style={styles.MTR}>
-                                          <View style={styles.TR1}>
-                                            <Text style={{fontWeight: 'bold',color: 'black'}}>Large</Text>
-                                            <View style={{flexDirection:'row',justifyContent: 'center'}}>
-                                                <Icon name="account" size={17} style={{marginHorizontal: 5 }} />
-                                                <Text>1-6 Max</Text>
-                                            </View>
-                                          </View>
-                                          <View style={styles.TR2}>
-                                            <Text style={{ fontWeight: 'bold',color:'rgb(67, 177, 35)'}}>$10.4</Text>
-                                              <Text style={{fontWeight: 'bold',color: 'black'}}>14 min</Text>
-                                          </View>
-                                    </View>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity style={[styles.MR,{borderBottomColor:'#fff'}]}
-                              activeOpacity={0.5}
-                              onPress={this._selectPremium}>
-                                    <Image source={require('../assets/car3.png')} style={styles.thumb}/>
-                                      <View style={styles.MTR}>
-                                            <View style={styles.TR1}>
-                                              <Text style={{fontWeight: 'bold',color: 'black'}}>Premium</Text>
-                                              <View style={{flexDirection:'row',justifyContent: 'center'}}>
-                                                  <Icon name="account" size={17} style={{marginHorizontal: 5 }} />
-                                                  <Text>1-3 Max</Text>
-                                              </View>
-                                            </View>
-                                            <View style={styles.TR2}>
-                                              <Text style={{ fontWeight: 'bold',color:'rgb(67, 177, 35)'}}>$13.99</Text>
-                                                <Text style={{fontWeight: 'bold',color: 'black'}}>10 min</Text>
-                                            </View>
-                                      </View>
-                              </TouchableOpacity>
-                      </View>
-                    </Modal>
 							</View>
         </View>
+        <Modal
+          style={styles.modalWrapper}
+          animationOut="fadeOut"
+          animationOutTiming ={400}
+          animationIn="fadeIn"
+          animationInTiming={400}
+          onBackdropPress={() => this.setState({ isModalVisible: false })}
+          isVisible={this.state.isModalVisible}>
+            <View style={styles.modalBody}>
+              <TouchableOpacity style={styles.MR}
+                activeOpacity={0.5}
+                onPress={this._selectEconomy}>
+                      <Image source={require('../assets/bluecar.png')} style={styles.thumb}/>
+                        <View style={styles.MTR}>
+                              <View style={styles.TR1}>
+                                <Text style={{fontWeight: 'bold',color: 'black'}}>Economy</Text>
+                                <View style={{flexDirection:'row',justifyContent: 'center'}}>
+                                    <Icon name="account" size={17} style={{marginHorizontal: 5 }} />
+                                    <Text>1-4 Max</Text>
+                                </View>
+                              </View>
+                              <View style={styles.TR2}>
+                                <Text style={{ fontWeight: 'bold',color:'rgb(67, 177, 35)'}}>$6.75</Text>
+                                  <Text style={{fontWeight: 'bold',color: 'black'}}>12 min</Text>
+                              </View>
+                        </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.MR}
+                  activeOpacity={0.5}
+                  onPress={this._selectLarge}>
+                        <Image source={require('../assets/truck.png')} style={styles.thumb}/>
+                          <View style={styles.MTR}>
+                                <View style={styles.TR1}>
+                                  <Text style={{fontWeight: 'bold',color: 'black'}}>Large</Text>
+                                  <View style={{flexDirection:'row',justifyContent: 'center'}}>
+                                      <Icon name="account" size={17} style={{marginHorizontal: 5 }} />
+                                      <Text>1-6 Max</Text>
+                                  </View>
+                                </View>
+                                <View style={styles.TR2}>
+                                  <Text style={{ fontWeight: 'bold',color:'rgb(67, 177, 35)'}}>$10.4</Text>
+                                    <Text style={{fontWeight: 'bold',color: 'black'}}>14 min</Text>
+                                </View>
+                          </View>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity style={[styles.MR,{borderBottomColor:'#fff'}]}
+                    activeOpacity={0.5}
+                    onPress={this._selectPremium}>
+                          <Image source={require('../assets/car3.png')} style={styles.thumb}/>
+                            <View style={styles.MTR}>
+                                  <View style={styles.TR1}>
+                                    <Text style={{fontWeight: 'bold',color: 'black'}}>Premium</Text>
+                                    <View style={{flexDirection:'row',justifyContent: 'center'}}>
+                                        <Icon name="account" size={17} style={{marginHorizontal: 5 }} />
+                                        <Text>1-3 Max</Text>
+                                    </View>
+                                  </View>
+                                  <View style={styles.TR2}>
+                                    <Text style={{ fontWeight: 'bold',color:'rgb(67, 177, 35)'}}>$13.99</Text>
+                                      <Text style={{fontWeight: 'bold',color: 'black'}}>10 min</Text>
+                                  </View>
+                            </View>
+                    </TouchableOpacity>
+            </View>
+          </Modal>
       </View>
     );
   }
@@ -304,6 +354,11 @@ import MapViewDirections from 'react-native-maps-directions';
 
 
 const styles = StyleSheet.create({
+  tripTxt:{
+    fontSize: 15,
+    fontWeight: '500',
+    color:'black'
+  },
   iconWrapper:{
     height: 25,
     width: 25,
@@ -347,12 +402,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 10
   },
   map:{
-    flex: 1,
-    height: (dh/2),
+    height:'70%',
     width: '100%'
   },
   textRows:{
-    flex: 1,
     justifyContent: 'space-around',
     flexDirection: 'column',
     padding: 10
@@ -375,49 +428,45 @@ const styles = StyleSheet.create({
     },
 
 	FirstRow:{
-		height: (dh*0.1),
-    paddingHorizontal: 10,
-		flex: 1,
+    marginLeft: 10,
     backgroundColor: '#fff',
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
 	},
 	SeconRow:{
-		height: (dh*0.1),
-		flex: 1,
+    paddingVertical: 5,
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 10,
-    paddingVertical: 2,
     alignItems: 'center'
 
 	},
 
   container: {
-    flex: 1,
+    flex:1,
+    height: '100%',
     backgroundColor: '#rgb(238, 238, 238)',
     justifyContent:'flex-start'
   },
   body: {
-		backgroundColor:'rgb(238, 238, 238)',
     flex: 1,
-    alignItems: 'flex-start',
-		justifyContent: 'flex-start'
+		backgroundColor:'rgb(238, 238, 238)',
+    height: '100%',
+		justifyContent: 'space-between'
   },
   topBoxes:{
      position: 'absolute',
      top: 0,
 			alignContent: 'center',
 			justifyContent: 'center',
-      padding: 10
+      padding: 5
   },
 	locationBtn:{
     backgroundColor: '#fff',
 		padding: 5,
     flexDirection: 'row',
     alignItems:'center',
-
     marginBottom:7,
     marginHorizontal: 5,
     paddingHorizontal: 10,
@@ -427,19 +476,43 @@ const styles = StyleSheet.create({
 	locationTxt:{
 		fontWeight: 'bold',
 		color: 'black',
-		fontSize: 17
+		fontSize: 15
 	},
 	bottomStack:{
     width: '100%',
-		height: (0.3*dh),
 			},
 
 	requestBtn:{
 		backgroundColor:GLOBALS.COLORS.YELLOW,
 		alignItems: 'center',
-		height: (0.1*dh),
+		paddingVertical:10,
 		justifyContent: 'center'
 	},
+  appBar: {
+    backgroundColor:'#fff',
+    width:'100%',
+    flexDirection:'row',
+    justifyContent:'space-between',
+    },
+
+  headerText:{
+    alignSelf:'center',
+    backgroundColor: GLOBALS.COLORS.YELLOW,
+    borderRadius: 6,
+    },
+
+  drawrIcon:{
+    color:'#777777',
+    margin:15,
+    },
+
+    centerTxt:{
+        color:'black',
+        fontSize:16,
+        marginHorizontal:(dw/24),
+        marginVertical: (dw/40),
+        fontWeight: 'bold'
+      },
 
 });
 

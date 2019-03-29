@@ -3,15 +3,14 @@ import {Platform, StyleSheet, Text, View, StatusBar,Dimensions,
         TouchableOpacity, Image,FlatList} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import GLOBALS from '../Globals'
-
-
+import {connect} from 'react-redux'
 
 type Props = {};
   var wS = Dimensions.get('window');
   var dh = wS.height;
   var dw = wS.width;
 
-export class ActiveScreen extends Component<Props> {
+class ActiveScreen extends Component<Props> {
   render() {
     return (
       <View style={styles.container}>
@@ -33,7 +32,7 @@ export class ActiveScreen extends Component<Props> {
 									</View>
 									<View style={styles.R2T1}>
 										<Text style={styles.from}>from :</Text>
-									  <Text style={{fontWeight: 'bold',color: 'black'}} >The Army Museum, Paris</Text>
+									  <Text style={{fontWeight: 'bold',color: 'black'}} >{this.props.pickupLocationName}, {this.props.pickupLocationPlace}</Text>
 									</View>
 							</View>
 								<View style={{width: '100%',backgroundColor: '#ddd',height: 1,marginVertical:5}} />
@@ -43,7 +42,7 @@ export class ActiveScreen extends Component<Props> {
 									</View>
 									<View style={styles.R2T1}>
 										<Text style={styles.from}>Destination :</Text>
-									  <Text style={{fontWeight: 'bold',color: 'black'}} >Homme Museum, Paris</Text>
+									  <Text  style={{fontWeight: 'bold',color: 'black'}} >{this.props.destinationLocationName}, {this.props.destinationLocationPlace}</Text>
 									</View>
 							</View>
 					</View>
@@ -79,13 +78,16 @@ const styles = StyleSheet.create({
 	},
 	R2T1:{
 		flexDirection: 'column',
+    flexWrap: 'wrap',
+    flex: 1
 	},
 	textNIcon:{
 		flexDirection: 'row',
 		alignItems: 'center',
 	},
 	row2:{
-		width: '100%'
+		width: '100%',
+        flexWrap: 'wrap'
 	},
 	iconWrapper:{
 		height: 25,
@@ -121,7 +123,10 @@ const styles = StyleSheet.create({
 		borderRadius: 8,
 		flexDirection: 'column',
 		backgroundColor: '#fff',
-
   },
-
 });
+
+const mapStateToProps = state => {
+  return state;
+};
+export default connect(mapStateToProps)(ActiveScreen);

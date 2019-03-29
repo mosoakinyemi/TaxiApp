@@ -4,6 +4,8 @@ import {Platform, StyleSheet, Text, View, StatusBar,Dimensions,
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import GLOBALS from '../Globals'
 import HistoryData from './HistoryDB'
+import {connect} from 'react-redux'
+import HistoryModal from './HistoryModal'
 
 
 type Props = {};
@@ -11,7 +13,7 @@ type Props = {};
   var dh = wS.height;
   var dw = wS.width;
 
-export class HistoryScreen extends Component<Props> {
+class HistoryScreen extends Component<Props> {
   move(){
     Alert.alert('Working');
   }
@@ -21,8 +23,9 @@ export class HistoryScreen extends Component<Props> {
 						<FlatList style={styles.listContainer}
 							data={HistoryData}
 							 keyExtractor={(item, index) => item.id}
-							renderItem={({item}) => <HistoryItem navigation={this.props.navigation} Detail={item} />}
+							renderItem={({item}) => <HistoryItem dispatch={this.props.dispatch} navigation={this.props.navigation} Detail={item} />}
 						 />
+           <HistoryModal />
       </View>
     );
   }
@@ -30,9 +33,13 @@ export class HistoryScreen extends Component<Props> {
 
  class HistoryItem extends Component {
    move(){
-     Alert.alert('Working');
-     this.props.navigation.navigate('HistoryDetail')
+    var status= true;
+    this.props.dispatch({type:'SHOW_HISTORY_MODAL', status})
+    const detail= this.props.Detail;
+    console.log(detail);
+  this.props.dispatch({type:'SET_MODAL_DATA', detail})
    }
+
   render() {
 		const {id,
 					status,
@@ -46,6 +53,7 @@ export class HistoryScreen extends Component<Props> {
 					time
 				} = this.props.Detail;
 			const detail= this.props.Detail;
+
     return (
 			<TouchableOpacity
 			activeOpacity={0.6}
@@ -167,3 +175,7 @@ const styles = StyleSheet.create({
 			marginBottom: 7
 	  },
 });
+const mapStateToProps = state => {
+  return state;
+};
+export default connect(mapStateToProps)(HistoryScreen);

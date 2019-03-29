@@ -15,6 +15,7 @@ import {store,persistor} from './redux/reducer'
 import {Provider} from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
 import GLOBALS from './components/Globals'
+import SplashScreen from "rn-splash-screen";
 
 const MyStatusBar = ({backgroundColor, ...props}) => (
     <View style={[styles.statusBar, { backgroundColor }]}>
@@ -23,6 +24,9 @@ const MyStatusBar = ({backgroundColor, ...props}) => (
   );
 
 export default class App extends React.Component {
+  componentWillMount() {
+      SplashScreen.hide();
+  }
   render() {
     return (
       <Provider store={store}>
