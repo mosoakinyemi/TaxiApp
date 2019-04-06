@@ -3,8 +3,8 @@ A protype for a taxi app built with [React Native](https://facebook.github.io/re
 # Screenshots
 ![](https://i.ibb.co/ch1z51N/pp1.png "First ScreenShot")![](https://i.ibb.co/m5yPyVj/pp3.png "Booking Screen") ![](https://i.ibb.co/WKv6Tfn/pp2.png, "Search Screen")
 ## Technologies and Frameworks used
-- [React Native](https://facebook.github.io/react-native/docs/getting-started.html)
-- [Redux](https://redux.js.org)
+- React Native
+- Redux
 - Google Places API
 - Google Maps API
 - Google Directions API
