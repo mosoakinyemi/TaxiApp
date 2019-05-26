@@ -8,3 +8,6 @@ A protype for a taxi app built with [React Native](https://facebook.github.io/re
 - Google Places API
 - Google Maps API
 - Google Directions API
+
+# Contact me @ akinyemimosolasi@gmail.com for full source or collaborations.
+- Thanks
